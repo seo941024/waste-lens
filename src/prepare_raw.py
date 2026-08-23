@@ -162,6 +162,18 @@ def main():
         if not path.is_dir():
             raise SystemExit(f"폴더를 찾을 수 없습니다: {path}")
 
+    # 이전 실행의 결과가 남아 있으면 --limit 을 줄여 다시 돌렸을 때 옛 이미지가
+    # 섞인다. 덮어쓰기로는 지워지지 않으므로 시작 전에 비운다.
+    stale = [d for d in (TRAIN_DIR, VAL_DIR, TEST_DIR) if d.is_dir() and any(d.iterdir())]
+    if stale and not args.dry_run:
+        print("이전 실행 결과가 남아 있습니다:")
+        for d in stale:
+            print(f"  {d}  ({sum(1 for _ in d.rglob('*.jpg'))}장)")
+        if input("지우고 새로 만들까요? [y/N] ").strip().lower() != "y":
+            raise SystemExit("중단했습니다. 섞임을 피하려면 위 폴더를 비우고 다시 실행하세요.")
+        for d in stale:
+            shutil.rmtree(d)
+
     train_buckets, unmatched = collect(train_src)
     val_buckets, unmatched_v = collect(val_src)
     unmatched.update(unmatched_v)
