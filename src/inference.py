@@ -1,0 +1,73 @@
+"""단일 이미지 추론 + Confidence 판단 + 배출 규칙 조회 (계획서 7, 8장).
+
+사용:
+    python -m src.inference --image sample.jpg --name baseline
+"""
+import argparse
+import json
+
+import torch
+import torch.nn.functional as F
+from PIL import Image
+
+from configs.classes import CLASSES, CLASS_KOR_NAME
+from configs.config import CKPT_DIR, CONF_HIGH, CONF_MID, RULES_PATH
+from src.model import get_device, load_checkpoint
+from src.transforms import build_transforms
+
+
+class WastePredictor:
+    def __init__(self, ckpt_path, device=None):
+        self.device = device or get_device()
+        self.model, self.meta = load_checkpoint(ckpt_path, self.device)
+        self.transform = build_transforms(train=False)
+        self.rules = json.loads(RULES_PATH.read_text(encoding="utf-8"))
+
+    @torch.no_grad()
+    def predict(self, image, topk=3):
+        if not isinstance(image, Image.Image):
+            image = Image.open(image)
+        tensor = self.transform(image.convert("RGB")).unsqueeze(0).to(self.device)
+        probs = F.softmax(self.model(tensor), dim=1)[0].cpu()
+
+        values, indices = probs.topk(min(topk, len(CLASSES)))
+        candidates = [{"class": CLASSES[i], "name_kor": CLASS_KOR_NAME[CLASSES[i]],
+                       "confidence": round(float(v), 4)}
+                      for v, i in zip(values, indices)]
+
+        top = candidates[0]
+        confidence = top["confidence"]
+
+        if confidence >= CONF_HIGH:
+            level, message = "high", "인식 결과에 따라 배출 방법을 안내합니다."
+        elif confidence >= CONF_MID:
+            level, message = "mid", "결과가 확실하지 않습니다. 물품의 재질 표시를 함께 확인하세요."
+        else:
+            level = "low"
+            message = "물품을 정확히 인식하지 못했습니다. 다른 각도나 단색 배경에서 다시 촬영해 주세요."
+
+        result = {
+            "confidence_level": level,
+            "message": message,
+            "top1": top,
+            "candidates": candidates,
+            "rule": None,
+        }
+        if level != "low":
+            result["rule"] = self.rules.get(top["class"])
+        return result
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--image", required=True)
+    parser.add_argument("--name", default="baseline")
+    args = parser.parse_args()
+
+    predictor = WastePredictor(CKPT_DIR / f"{args.name}.pt")
+    result = predictor.predict(args.image)
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+
+
+if __name__ == "__main__":
+    main()

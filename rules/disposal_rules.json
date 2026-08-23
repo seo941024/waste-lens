@@ -1,0 +1,182 @@
+{
+  "fry_pan": {
+    "item_name": "프라이팬",
+    "model_class": "fry_pan",
+    "disposal_category": "고철류",
+    "instruction": "",
+    "needs_material_check": false,
+    "local_rule_required": true,
+    "source": "",
+    "verified": false
+  },
+  "electric_fry_pan": {
+    "item_name": "전기프라이팬",
+    "model_class": "electric_fry_pan",
+    "disposal_category": "폐가전",
+    "instruction": "",
+    "needs_material_check": false,
+    "local_rule_required": true,
+    "source": "",
+    "verified": false
+  },
+  "steel_hanger": {
+    "item_name": "철옷걸이",
+    "model_class": "steel_hanger",
+    "disposal_category": "고철류",
+    "instruction": "",
+    "needs_material_check": false,
+    "local_rule_required": true,
+    "source": "",
+    "verified": false
+  },
+  "cutting_board": {
+    "item_name": "도마",
+    "model_class": "cutting_board",
+    "disposal_category": "대형/재질별",
+    "instruction": "",
+    "needs_material_check": false,
+    "local_rule_required": true,
+    "source": "",
+    "verified": false
+  },
+  "ttukbaegi": {
+    "item_name": "뚝배기",
+    "model_class": "ttukbaegi",
+    "disposal_category": "도기류",
+    "instruction": "",
+    "needs_material_check": false,
+    "local_rule_required": true,
+    "source": "",
+    "verified": false
+  },
+  "flower_pot": {
+    "item_name": "화분",
+    "model_class": "flower_pot",
+    "disposal_category": "도기류",
+    "instruction": "",
+    "needs_material_check": false,
+    "local_rule_required": true,
+    "source": "",
+    "verified": false
+  },
+  "sealed_container": {
+    "item_name": "밀폐용기",
+    "model_class": "sealed_container",
+    "disposal_category": "플라스틱류",
+    "instruction": "",
+    "needs_material_check": false,
+    "local_rule_required": true,
+    "source": "",
+    "verified": false
+  },
+  "bubble_wrap": {
+    "item_name": "에어캡(뽁뽁이)",
+    "model_class": "bubble_wrap",
+    "disposal_category": "비닐류",
+    "instruction": "",
+    "needs_material_check": false,
+    "local_rule_required": true,
+    "source": "",
+    "verified": false
+  },
+  "styrofoam_tray": {
+    "item_name": "스티로폼 포장용기",
+    "model_class": "styrofoam_tray",
+    "disposal_category": "스티로폼",
+    "instruction": "",
+    "needs_material_check": false,
+    "local_rule_required": true,
+    "source": "",
+    "verified": false
+  },
+  "pet_bottle": {
+    "item_name": "페트병",
+    "model_class": "pet_bottle",
+    "disposal_category": "투명페트병",
+    "instruction": "",
+    "needs_material_check": false,
+    "local_rule_required": true,
+    "source": "",
+    "verified": false
+  },
+  "disposable_cup": {
+    "item_name": "일회용 음료수잔",
+    "model_class": "disposable_cup",
+    "disposal_category": "플라스틱/종이컵",
+    "instruction": "",
+    "needs_material_check": false,
+    "local_rule_required": true,
+    "source": "",
+    "verified": false
+  },
+  "beverage_can": {
+    "item_name": "음료수캔",
+    "model_class": "beverage_can",
+    "disposal_category": "캔류",
+    "instruction": "",
+    "needs_material_check": false,
+    "local_rule_required": true,
+    "source": "",
+    "verified": false
+  },
+  "mobile_phone": {
+    "item_name": "휴대전화",
+    "model_class": "mobile_phone",
+    "disposal_category": "폐소형가전",
+    "instruction": "",
+    "needs_material_check": false,
+    "local_rule_required": true,
+    "source": "",
+    "verified": false
+  },
+  "electric_iron": {
+    "item_name": "전기다리미",
+    "model_class": "electric_iron",
+    "disposal_category": "폐소형가전",
+    "instruction": "",
+    "needs_material_check": false,
+    "local_rule_required": true,
+    "source": "",
+    "verified": false
+  },
+  "electric_rice_cooker": {
+    "item_name": "전기밥솥",
+    "model_class": "electric_rice_cooker",
+    "disposal_category": "폐소형가전",
+    "instruction": "",
+    "needs_material_check": false,
+    "local_rule_required": true,
+    "source": "",
+    "verified": false
+  },
+  "electric_fan": {
+    "item_name": "선풍기",
+    "model_class": "electric_fan",
+    "disposal_category": "폐가전",
+    "instruction": "",
+    "needs_material_check": false,
+    "local_rule_required": true,
+    "source": "",
+    "verified": false
+  },
+  "vacuum_cleaner": {
+    "item_name": "청소기",
+    "model_class": "vacuum_cleaner",
+    "disposal_category": "폐가전",
+    "instruction": "",
+    "needs_material_check": false,
+    "local_rule_required": true,
+    "source": "",
+    "verified": false
+  },
+  "beverage_carton": {
+    "item_name": "음료수곽",
+    "model_class": "beverage_carton",
+    "disposal_category": "종이팩",
+    "instruction": "",
+    "needs_material_check": false,
+    "local_rule_required": true,
+    "source": "",
+    "verified": false
+  }
+}
