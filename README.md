@@ -9,12 +9,12 @@
 
 ```
 configs/   classes.py(18개 클래스 정의), config.py(경로·하이퍼파라미터)
-src/       inspect_source, prepare_raw, split_data, dataset, transforms,
+src/       inspect_source, prepare_raw, dataset, transforms,
            model, train, evaluate, inference
 rules/     disposal_rules.json  (배출 규칙 DB — 공식 기준 조사 후 채움)
 app/       app.py (Streamlit 데모)
 results/   체크포인트, 평가 리포트, Confusion Matrix
-data/      raw/ train/ val/ test/  (Git 제외)
+data/      train/ val/ test/  (Git 제외)
 ```
 
 ## 준비
@@ -33,56 +33,67 @@ pip install -r requirements.txt
 
 저장소에는 **코드만** 들어 있습니다. `data/`와 `results/checkpoints/`는 Git에서 제외되어 있으므로
 이미지와 학습된 모델은 포함되지 않습니다. AI-Hub 「생활 폐기물 이미지」(dataSetSn=140)를
-[aihub.or.kr](https://www.aihub.or.kr)에서 직접 내려받은 뒤 아래 1~4단계를 순서대로 실행하세요.
+[aihub.or.kr](https://www.aihub.or.kr)에서 직접 내려받은 뒤 아래 2~5단계를 순서대로 실행하세요.
 AI-Hub 데이터는 재배포가 금지되어 있어 저장소에 담을 수 없습니다.
 
 GPU가 없어도 동작하지만 학습은 CPU에서 매우 느립니다. CUDA 환경이라면
 [pytorch.org](https://pytorch.org/get-started/locally/)에서 GPU용 torch 설치 명령을 확인해
 `requirements.txt` 대신 먼저 설치하세요.
 
-## 1. 원본 구조 파악
+## 데이터에 대해
 
-AI-Hub 「생활 폐기물 이미지」(dataSetSn=140)는 **폴더가 중분류(고철류·전자제품 등) 단위**이고,
-우리가 필요한 세부 품목명(프라이팬 등)은 **라벨 JSON 안**에 있습니다.
-또한 **1건 = 같은 물체 5장**이므로 데이터 누수 방지가 필수입니다.
+AI-Hub에서 받아야 할 것은 **원천데이터(이미지)뿐**입니다. 라벨링데이터는 필요 없습니다.
+이 프로젝트는 이미지 *분류*이고 정답은 폴더명에서 나오기 때문입니다.
+라벨 JSON에 든 bbox 좌표는 객체 *검출*용이라 여기서는 쓰지 않습니다.
 
-다만 라벨이 JSON인지, 품목명이 어디 있는지는 **직접 열어봐야** 압니다.
-다운로드/압축해제가 끝나면 먼저 조사만 합니다 (아무것도 옮기지 않습니다).
+압축을 풀면 구조가 이렇습니다. 셋 다 중요합니다.
 
-```bash
-python -m src.inspect_source --source "D:/aihub"
+```
+생활 폐기물 이미지/
+  Training/[T원천]도기류_화분_화분/14_X001_C014_1209/14_X001_C014_1209_0.jpg
+                                   └ 건(물체) 폴더    └ 같은 물체 5장 (_0~_4)
+  Validation/[V원천]도기류_화분_화분/...
 ```
 
-파일 종류별 개수, 폴더 구조, 안 풀린 압축, 1건 5장 파일명 패턴,
-라벨 형식(JSON/XML/CSV)과 키별 값 분포를 보여줍니다.
-출력에서 ① 세부 품목명 키 ② 건 ID 키 ③ bbox 키를 확인하세요.
+- **품목명은 폴더명 마지막 토큰**입니다 (`[T원천]<중분류>_<품목>_<품목>`).
+- **건(물체) ID는 이미지의 부모 폴더명**입니다. 같은 건 5장이 train과 test로 흩어지면
+  같은 물체를 외운 채 맞히는 셈이라 정확도가 가짜로 부풀려집니다. 항상 건 단위로 묶습니다.
+- **Training/Validation이 이미 나뉘어** 있어 별도 분할이 필요 없습니다.
 
-## 2. data/raw 로 정리
+## 1. 원본 구조 파악 (선택)
 
-확인한 키 이름을 넣고 먼저 `--dry-run`으로 장수를 봅니다.
+구조가 위와 다르거나 확인만 하고 싶을 때 씁니다. 아무것도 옮기지 않습니다.
 
 ```bash
-python -m src.prepare_raw --source "D:/aihub/생활폐기물" --mode json --detail-key DETAILS --group-key ID --bbox-key BOX --crop-bbox --dry-run
+python -m src.inspect_source --source "C:/Users/이름/Downloads/생활 폐기물 이미지"
 ```
 
-문제없으면 `--dry-run`을 빼고 실행합니다. 클래스당 장수를 제한하려면 `--limit 1000`을 붙이세요.
-`--crop-bbox`는 1920×1080 원본에서 물체 영역만 잘라내 분류 정확도를 높입니다.
+파일 종류별 개수, 폴더 구조, 안 풀린 압축, 1건 5장 파일명 패턴을 보여줍니다.
+
+## 2. data/ 로 정리
+
+먼저 `--dry-run`으로 클래스별 장수를 확인합니다. 아무것도 저장하지 않습니다.
+
+```bash
+python -m src.prepare_raw --source "C:/Users/이름/Downloads/생활 폐기물 이미지" --dry-run
+```
+
+문제없으면 `--dry-run`을 빼고 실행합니다. Training은 그대로 `data/train`이 되고,
+AI-Hub가 test셋을 따로 주지 않으므로 **Validation을 건 단위로 반씩 갈라** `data/val`과 `data/test`로 씁니다.
+
+```bash
+python -m src.prepare_raw --source "C:/Users/이름/Downloads/생활 폐기물 이미지" --limit 1200
+```
+
+`--limit`은 **클래스당 최대 건수**입니다(장수가 아닙니다. 1건 = 5장).
+이 데이터셋은 불균형이 40배까지 납니다 — 페트병 36,961장 vs 전기다리미 913장.
+그대로 학습하면 모델이 페트병만 찍어도 점수가 나오므로 `--limit`을 쓰는 편이 좋습니다.
 
 `--max-side`(기본 512)는 저장 시 이미지를 줄여둡니다. 학습은 224px로 하는데
 원본을 그대로 두면 매 epoch마다 큰 JPEG를 디코딩하느라 GPU가 놉니다.
-실측 결과 1920×1080 → 512px 축소만으로 **디코딩이 2.6배** 빨라집니다.
-결과 파일명은 `fry_pan-g00001_01.jpg` 형태로, `g00001`이 건(물체) ID입니다.
+결과 파일명은 `flower_pot-14_X001_C014_1209_01.jpg` 형태입니다.
 
-## 3. 데이터 분할 (70/15/15)
-
-```bash
-python -m src.split_data --group-by-prefix --prefix-sep _
-```
-
-`--group-by-prefix`는 같은 건 ID의 5장을 한 split에 묶어 **데이터 누수를 막습니다. 반드시 사용하세요.**
-빼고 돌리면 같은 물체가 train과 test에 동시에 들어가 정확도가 가짜로 부풀려집니다.
-
-## 4. 학습
+## 3. 학습
 
 ```bash
 python -m src.train --name baseline --no-augment --epochs 10
@@ -99,7 +110,7 @@ batch 64는 VRAM 1.03GB(10%)만 쓰므로 공유 GPU 메모리로 넘어가지 �
 일회성 비용이고, 2번째 epoch부터는 정상 속도가 나옵니다 (실측 62.8s → 6.4s).
 고장이 아니니 기다리세요. 문제가 생기면 `--workers 0`으로 끄되 4배 이상 느려집니다.
 
-## 5. 평가
+## 4. 평가
 
 ```bash
 python -m src.evaluate --name improved
@@ -107,7 +118,7 @@ python -m src.evaluate --name improved
 
 Accuracy / Precision / Recall / F1, Confusion Matrix 이미지, Threshold별 Coverage·Accepted Accuracy, High-confidence wrong prediction 목록이 `results/`에 저장됩니다.
 
-## 6. 추론 · 웹 데모
+## 5. 추론 · 웹 데모
 
 ```bash
 python -m src.inference --image sample.jpg --name improved

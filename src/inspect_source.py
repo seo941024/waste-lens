@@ -168,9 +168,9 @@ def report_labels(source, samples):
                    if p.is_file() and p.suffix.lower() in LABEL_EXTS]
     section("5) 라벨 파일")
     if not label_files:
-        print("  라벨 파일(JSON/XML/CSV)이 없습니다.")
-        print("  -> 라벨링데이터 압축을 따로 받아야 하거나,")
-        print("     품목명이 폴더명에만 있을 수 있습니다. 위 2)번 폴더 구조를 확인하세요.")
+        print("  라벨 파일(JSON/XML/CSV)이 없습니다. — 원천데이터만 받은 정상 상태입니다.")
+        print("  이 프로젝트는 이미지 분류라 정답을 폴더명에서 얻으므로 라벨링데이터가 필요 없습니다.")
+        print("  위 2)번 폴더 구조에 품목명이 보이는지만 확인하고 prepare_raw로 넘어가세요.")
         return
 
     by_ext = Counter(p.suffix.lower() for p in label_files)
