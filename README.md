@@ -20,8 +20,25 @@ data/      raw/ train/ val/ test/  (Git 제외)
 ## 준비
 
 ```bash
+git clone https://github.com/seo941024/waste-lens.git
+```
+
+```bash
+cd waste-lens
+```
+
+```bash
 pip install -r requirements.txt
 ```
+
+저장소에는 **코드만** 들어 있습니다. `data/`와 `results/checkpoints/`는 Git에서 제외되어 있으므로
+이미지와 학습된 모델은 포함되지 않습니다. AI-Hub 「생활 폐기물 이미지」(dataSetSn=140)를
+[aihub.or.kr](https://www.aihub.or.kr)에서 직접 내려받은 뒤 아래 1~4단계를 순서대로 실행하세요.
+AI-Hub 데이터는 재배포가 금지되어 있어 저장소에 담을 수 없습니다.
+
+GPU가 없어도 동작하지만 학습은 CPU에서 매우 느립니다. CUDA 환경이라면
+[pytorch.org](https://pytorch.org/get-started/locally/)에서 GPU용 torch 설치 명령을 확인해
+`requirements.txt` 대신 먼저 설치하세요.
 
 ## 1. 원본 구조 파악
 
