@@ -12,7 +12,7 @@ configs/   classes.py(18개 클래스 정의), config.py(경로·하이퍼파라
 src/       inspect_source, prepare_raw, dataset, transforms,
            model, train, evaluate, inference
 rules/     disposal_rules.json  (배출 규칙 DB — 공식 기준 조사 후 채움)
-app/       app.py (Streamlit 데모)
+app/       app_pyqt6.py (PyQt6 데스크톱 UI), app.py (Streamlit 데모)
 results/   체크포인트, 평가 리포트, Confusion Matrix
 data/      train/ val/ test/  (Git 제외)
 ```
@@ -128,11 +128,25 @@ AI-Hub 원본 자체가 41건(205장)뿐이라 재학습으로 해결되지 않�
 `sealed_container`로 오분류된 경우는 이 안전장치가 걸리지 않습니다.
 전기프라이팬은 촬영을 피하거나, 결과가 이상하면 재질 표시를 직접 확인하세요.
 
-## 5. 추론 · 웹 데모
+## 5. 추론 · 데모
+
+명령줄에서 한 장 확인:
 
 ```bash
 python -m src.inference --image sample.jpg --name improved
 ```
+
+**데스크톱 UI (PyQt6)** — 인터넷 없이 실행되는 기본 데모입니다.
+
+```bash
+python app/app_pyqt6.py
+```
+
+이미지를 끌어다 놓거나 선택하면 인식 결과·배출 안내·다른 후보를 보여주고,
+`배출 규칙` `모델 성능` `설정` 탭에서 18종 규칙과 평가 리포트를 확인할 수 있습니다.
+체크포인트 로딩은 백그라운드 스레드에서 하므로 창이 먼저 뜬 뒤 잠시 후 준비됩니다.
+
+**웹 데모 (Streamlit)** — 카메라 촬영 입력이 필요할 때 씁니다.
 
 ```bash
 streamlit run app/app.py
@@ -140,6 +154,7 @@ streamlit run app/app.py
 
 ## 주의
 
-`rules/disposal_rules.json`의 `instruction`, `source`는 비어 있습니다.
-환경부·지자체 등 공식 기준을 확인해 채우고 `verified`를 `true`로 바꾼 뒤 서비스에 사용하세요.
-`disposal_category`는 AI-Hub 라벨 계열을 참고한 초안이며 실제 배출 기준이 아닙니다.
+`rules/disposal_rules.json`의 `instruction`과 `source`는 채워져 있으나
+**`verified`가 모두 `false`인 초안**입니다. 환경부·지자체 공식 기준으로 검증하고
+`verified`를 `true`로 바꾼 뒤 실제 서비스에 사용하세요.
+`disposal_category`는 AI-Hub 라벨 계열을 참고한 것이며 그 자체가 배출 기준은 아닙니다.
