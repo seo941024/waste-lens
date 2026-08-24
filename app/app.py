@@ -55,6 +55,8 @@ if image_file:
         st.error("인식 실패")
 
     st.write(result["message"])
+    if result["low_data_warning"]:
+        st.warning("⚠️ 이 종류는 학습 데이터가 적어 오인식 가능성이 높습니다. 재질 표시를 꼭 확인하세요.")
 
     rule = result["rule"]
     if rule:

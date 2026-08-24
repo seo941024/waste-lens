@@ -1,0 +1,793 @@
+{
+  "name": "improved",
+  "accuracy": 0.9218605724838412,
+  "classification_report": {
+    "fry_pan": {
+      "precision": 0.9415204678362573,
+      "recall": 0.9698795180722891,
+      "f1-score": 0.9554896142433235,
+      "support": 332.0
+    },
+    "electric_fry_pan": {
+      "precision": 1.0,
+      "recall": 0.2,
+      "f1-score": 0.3333333333333333,
+      "support": 10.0
+    },
+    "steel_hanger": {
+      "precision": 0.9558823529411765,
+      "recall": 0.948905109489051,
+      "f1-score": 0.9523809523809523,
+      "support": 137.0
+    },
+    "cutting_board": {
+      "precision": 0.9797297297297297,
+      "recall": 1.0,
+      "f1-score": 0.9897610921501706,
+      "support": 145.0
+    },
+    "ttukbaegi": {
+      "precision": 0.7064220183486238,
+      "recall": 0.8555555555555555,
+      "f1-score": 0.7738693467336684,
+      "support": 90.0
+    },
+    "flower_pot": {
+      "precision": 0.9286846275752774,
+      "recall": 0.9528455284552846,
+      "f1-score": 0.9406099518459069,
+      "support": 615.0
+    },
+    "sealed_container": {
+      "precision": 0.9385245901639344,
+      "recall": 0.8455384615384616,
+      "f1-score": 0.8896082874716736,
+      "support": 1625.0
+    },
+    "bubble_wrap": {
+      "precision": 0.958904109589041,
+      "recall": 0.8235294117647058,
+      "f1-score": 0.8860759493670886,
+      "support": 85.0
+    },
+    "styrofoam_tray": {
+      "precision": 0.8798798798798799,
+      "recall": 0.9766666666666667,
+      "f1-score": 0.9257503949447078,
+      "support": 300.0
+    },
+    "pet_bottle": {
+      "precision": 0.9212531752751905,
+      "recall": 0.941991341991342,
+      "f1-score": 0.9315068493150684,
+      "support": 2310.0
+    },
+    "disposable_cup": {
+      "precision": 0.7605633802816901,
+      "recall": 0.8526315789473684,
+      "f1-score": 0.8039702233250621,
+      "support": 190.0
+    },
+    "beverage_can": {
+      "precision": 0.9624113475177305,
+      "recall": 0.9456445993031359,
+      "f1-score": 0.9539543057996485,
+      "support": 1435.0
+    },
+    "mobile_phone": {
+      "precision": 0.9838449111470113,
+      "recall": 0.9822580645161291,
+      "f1-score": 0.9830508474576272,
+      "support": 620.0
+    },
+    "electric_iron": {
+      "precision": 0.8055555555555556,
+      "recall": 0.5272727272727272,
+      "f1-score": 0.6373626373626373,
+      "support": 55.0
+    },
+    "electric_rice_cooker": {
+      "precision": 0.9754601226993865,
+      "recall": 0.9352941176470588,
+      "f1-score": 0.954954954954955,
+      "support": 170.0
+    },
+    "electric_fan": {
+      "precision": 0.9111111111111111,
+      "recall": 0.9647058823529412,
+      "f1-score": 0.9371428571428572,
+      "support": 170.0
+    },
+    "vacuum_cleaner": {
+      "precision": 0.7511111111111111,
+      "recall": 0.9135135135135135,
+      "f1-score": 0.824390243902439,
+      "support": 185.0
+    },
+    "beverage_carton": {
+      "precision": 0.7477064220183486,
+      "recall": 0.8578947368421053,
+      "f1-score": 0.7990196078431373,
+      "support": 190.0
+    },
+    "accuracy": 0.9218605724838412,
+    "macro avg": {
+      "precision": 0.8949202729322808,
+      "recall": 0.8607848229960187,
+      "f1-score": 0.8595684138652364,
+      "support": 8664.0
+    },
+    "weighted avg": {
+      "precision": 0.9245824371158438,
+      "recall": 0.9218605724838412,
+      "f1-score": 0.9216660260078422,
+      "support": 8664.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      322,
+      0,
+      0,
+      0,
+      2,
+      1,
+      2,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      4,
+      0
+    ],
+    [
+      4,
+      2,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      2,
+      0
+    ],
+    [
+      2,
+      0,
+      130,
+      0,
+      2,
+      2,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      145,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      5,
+      0,
+      0,
+      0,
+      77,
+      4,
+      3,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      8,
+      586,
+      6,
+      1,
+      1,
+      2,
+      2,
+      1,
+      0,
+      1,
+      1,
+      0,
+      2,
+      4
+    ],
+    [
+      6,
+      0,
+      6,
+      1,
+      19,
+      16,
+      1374,
+      0,
+      27,
+      108,
+      10,
+      21,
+      7,
+      1,
+      1,
+      3,
+      8,
+      17
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      70,
+      0,
+      6,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      8
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      7,
+      0,
+      293,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      0,
+      0,
+      7,
+      49,
+      0,
+      0,
+      2176,
+      35,
+      26,
+      0,
+      0,
+      0,
+      0,
+      6,
+      10
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      4,
+      1,
+      0,
+      20,
+      162,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      13,
+      0,
+      0,
+      45,
+      3,
+      1357,
+      2,
+      0,
+      0,
+      0,
+      0,
+      15
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      8,
+      0,
+      0,
+      1,
+      609,
+      0,
+      0,
+      0,
+      2,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      29,
+      0,
+      5,
+      20,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      1,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      159,
+      0,
+      7,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      164,
+      5,
+      0
+    ],
+    [
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      4,
+      1,
+      7,
+      169,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      2,
+      0,
+      10,
+      3,
+      1,
+      3,
+      4,
+      1,
+      3,
+      0,
+      0,
+      0,
+      0,
+      0,
+      163
+    ]
+  ],
+  "threshold_analysis": [
+    {
+      "threshold": 0.0,
+      "coverage": 1.0,
+      "accepted_accuracy": 0.9219,
+      "n_accepted": 8664
+    },
+    {
+      "threshold": 0.05,
+      "coverage": 1.0,
+      "accepted_accuracy": 0.9219,
+      "n_accepted": 8664
+    },
+    {
+      "threshold": 0.1,
+      "coverage": 1.0,
+      "accepted_accuracy": 0.9219,
+      "n_accepted": 8664
+    },
+    {
+      "threshold": 0.15,
+      "coverage": 1.0,
+      "accepted_accuracy": 0.9219,
+      "n_accepted": 8664
+    },
+    {
+      "threshold": 0.2,
+      "coverage": 1.0,
+      "accepted_accuracy": 0.9219,
+      "n_accepted": 8664
+    },
+    {
+      "threshold": 0.25,
+      "coverage": 0.9997,
+      "accepted_accuracy": 0.9222,
+      "n_accepted": 8661
+    },
+    {
+      "threshold": 0.3,
+      "coverage": 0.9992,
+      "accepted_accuracy": 0.9224,
+      "n_accepted": 8657
+    },
+    {
+      "threshold": 0.35,
+      "coverage": 0.9971,
+      "accepted_accuracy": 0.9238,
+      "n_accepted": 8639
+    },
+    {
+      "threshold": 0.4,
+      "coverage": 0.9953,
+      "accepted_accuracy": 0.9253,
+      "n_accepted": 8623
+    },
+    {
+      "threshold": 0.45,
+      "coverage": 0.992,
+      "accepted_accuracy": 0.9269,
+      "n_accepted": 8595
+    },
+    {
+      "threshold": 0.5,
+      "coverage": 0.987,
+      "accepted_accuracy": 0.9294,
+      "n_accepted": 8551
+    },
+    {
+      "threshold": 0.55,
+      "coverage": 0.9773,
+      "accepted_accuracy": 0.934,
+      "n_accepted": 8467
+    },
+    {
+      "threshold": 0.6,
+      "coverage": 0.9676,
+      "accepted_accuracy": 0.9393,
+      "n_accepted": 8383
+    },
+    {
+      "threshold": 0.65,
+      "coverage": 0.9589,
+      "accepted_accuracy": 0.9428,
+      "n_accepted": 8308
+    },
+    {
+      "threshold": 0.7,
+      "coverage": 0.949,
+      "accepted_accuracy": 0.9472,
+      "n_accepted": 8222
+    },
+    {
+      "threshold": 0.75,
+      "coverage": 0.9389,
+      "accepted_accuracy": 0.9507,
+      "n_accepted": 8135
+    },
+    {
+      "threshold": 0.8,
+      "coverage": 0.9259,
+      "accepted_accuracy": 0.9559,
+      "n_accepted": 8022
+    },
+    {
+      "threshold": 0.85,
+      "coverage": 0.9114,
+      "accepted_accuracy": 0.9601,
+      "n_accepted": 7896
+    },
+    {
+      "threshold": 0.9,
+      "coverage": 0.89,
+      "accepted_accuracy": 0.9647,
+      "n_accepted": 7711
+    },
+    {
+      "threshold": 0.95,
+      "coverage": 0.8553,
+      "accepted_accuracy": 0.9707,
+      "n_accepted": 7410
+    }
+  ],
+  "high_confidence_wrong": [
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\electric_iron\\electric_iron-20_X009_C171_0127_03.jpg",
+      "true": "electric_iron",
+      "pred": "vacuum_cleaner",
+      "confidence": 1.0
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\electric_iron\\electric_iron-20_X034_C171_0130_02.jpg",
+      "true": "electric_iron",
+      "pred": "electric_fan",
+      "confidence": 1.0
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\sealed_container\\sealed_container-24_X046_C025_1015_03.jpg",
+      "true": "sealed_container",
+      "pred": "pet_bottle",
+      "confidence": 1.0
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\vacuum_cleaner\\vacuum_cleaner-20_X036_C801_0220_03.jpg",
+      "true": "vacuum_cleaner",
+      "pred": "electric_fan",
+      "confidence": 1.0
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\sealed_container\\sealed_container-24_X001_C028_1201_03.jpg",
+      "true": "sealed_container",
+      "pred": "pet_bottle",
+      "confidence": 1.0
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\electric_iron\\electric_iron-20_X009_C171_0127_02.jpg",
+      "true": "electric_iron",
+      "pred": "vacuum_cleaner",
+      "confidence": 1.0
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\bubble_wrap\\bubble_wrap-15_X005_C013_1027_01.jpg",
+      "true": "bubble_wrap",
+      "pred": "beverage_carton",
+      "confidence": 1.0
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\sealed_container\\sealed_container-24_X001_C013_1026_05.jpg",
+      "true": "sealed_container",
+      "pred": "beverage_carton",
+      "confidence": 1.0
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\electric_iron\\electric_iron-20_X009_C171_0127_04.jpg",
+      "true": "electric_iron",
+      "pred": "vacuum_cleaner",
+      "confidence": 1.0
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\sealed_container\\sealed_container-24_X001_C194_1112_02.jpg",
+      "true": "sealed_container",
+      "pred": "pet_bottle",
+      "confidence": 1.0
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\electric_iron\\electric_iron-20_X009_C171_0127_01.jpg",
+      "true": "electric_iron",
+      "pred": "vacuum_cleaner",
+      "confidence": 1.0
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\sealed_container\\sealed_container-24_X046_C025_1015_04.jpg",
+      "true": "sealed_container",
+      "pred": "pet_bottle",
+      "confidence": 1.0
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\sealed_container\\sealed_container-24_X016_C510_0325_03.jpg",
+      "true": "sealed_container",
+      "pred": "pet_bottle",
+      "confidence": 1.0
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\bubble_wrap\\bubble_wrap-15_X005_C013_1027_05.jpg",
+      "true": "bubble_wrap",
+      "pred": "beverage_carton",
+      "confidence": 1.0
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\beverage_can\\beverage_can-22_X007_C166_1016_01.jpg",
+      "true": "beverage_can",
+      "pred": "sealed_container",
+      "confidence": 1.0
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\sealed_container\\sealed_container-24_X006_C188_1111_04.jpg",
+      "true": "sealed_container",
+      "pred": "ttukbaegi",
+      "confidence": 1.0
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\sealed_container\\sealed_container-24_X016_C510_0325_04.jpg",
+      "true": "sealed_container",
+      "pred": "pet_bottle",
+      "confidence": 0.9999
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\sealed_container\\sealed_container-24_X039_C802_0217_03.jpg",
+      "true": "sealed_container",
+      "pred": "pet_bottle",
+      "confidence": 0.9999
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\vacuum_cleaner\\vacuum_cleaner-20_X036_C801_0220_01.jpg",
+      "true": "vacuum_cleaner",
+      "pred": "electric_fan",
+      "confidence": 0.9999
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\sealed_container\\sealed_container-24_X006_C184_1016_02.jpg",
+      "true": "sealed_container",
+      "pred": "pet_bottle",
+      "confidence": 0.9999
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\electric_iron\\electric_iron-20_X034_C171_0130_04.jpg",
+      "true": "electric_iron",
+      "pred": "electric_fan",
+      "confidence": 0.9999
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\electric_iron\\electric_iron-20_X034_C171_0130_05.jpg",
+      "true": "electric_iron",
+      "pred": "electric_fan",
+      "confidence": 0.9999
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\pet_bottle\\pet_bottle-23_X004_C803_0217_05.jpg",
+      "true": "pet_bottle",
+      "pred": "sealed_container",
+      "confidence": 0.9999
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\electric_iron\\electric_iron-20_X009_C171_0127_05.jpg",
+      "true": "electric_iron",
+      "pred": "vacuum_cleaner",
+      "confidence": 0.9999
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\sealed_container\\sealed_container-24_X006_C184_1016_03.jpg",
+      "true": "sealed_container",
+      "pred": "pet_bottle",
+      "confidence": 0.9999
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\pet_bottle\\pet_bottle-23_X178_C510_0326_02.jpg",
+      "true": "pet_bottle",
+      "pred": "disposable_cup",
+      "confidence": 0.9999
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\sealed_container\\sealed_container-24_X001_C028_1201_02.jpg",
+      "true": "sealed_container",
+      "pred": "pet_bottle",
+      "confidence": 0.9999
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\electric_iron\\electric_iron-20_X034_C171_0130_03.jpg",
+      "true": "electric_iron",
+      "pred": "electric_fan",
+      "confidence": 0.9998
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\sealed_container\\sealed_container-24_X039_C802_0217_05.jpg",
+      "true": "sealed_container",
+      "pred": "pet_bottle",
+      "confidence": 0.9998
+    },
+    {
+      "path": "C:\\Users\\AISW_203_106\\Desktop\\waste-lens\\data\\test\\pet_bottle\\pet_bottle-23_X001_C039_1217_04.jpg",
+      "true": "pet_bottle",
+      "pred": "sealed_container",
+      "confidence": 0.9998
+    }
+  ]
+}

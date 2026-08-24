@@ -118,6 +118,16 @@ python -m src.evaluate --name improved
 
 Accuracy / Precision / Recall / F1, Confusion Matrix 이미지, Threshold별 Coverage·Accepted Accuracy, High-confidence wrong prediction 목록이 `results/`에 저장됩니다.
 
+### 알려진 한계: `electric_fry_pan`
+
+AI-Hub 원본 자체가 41건(205장)뿐이라 재학습으로 해결되지 않습니다.
+`improved` 기준 test 10장 중 2장만 정답이고, 나머지는 대부분 `sealed_container`로
+높은 confidence와 함께 오분류됩니다 — confidence 임계값으로도 못 걸러냅니다.
+모델이 `electric_fry_pan`이라고 답한 경우에 한해 `configs/config.py`의
+`LOW_DATA_CLASSES`가 confidence를 낮추고 재질 확인을 안내하지만, 애초에
+`sealed_container`로 오분류된 경우는 이 안전장치가 걸리지 않습니다.
+전기프라이팬은 촬영을 피하거나, 결과가 이상하면 재질 표시를 직접 확인하세요.
+
 ## 5. 추론 · 웹 데모
 
 ```bash
