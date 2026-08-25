@@ -257,17 +257,35 @@ def result_dialog():
         )
         # 인식이 확실하지 않으면 직접 고르기를 미리 펼쳐 둔다
         manual = manual_picker("dlg", expanded=result["confidence_level"] == "low")
+        slug = manual or picked
+        note = "직접 고른 품목입니다." if manual else ""
     else:
-        picked = None
-        manual = manual_picker("dlg", expanded=True)
+        slug = st.session_state.get("manual_slug")
+        note = "직접 고른 품목입니다."
 
-    slug = manual or picked
     if slug:
-        note = "직접 선택한 품목입니다." if manual else ""
         rule_card(slug, note)
     else:
         st.markdown('<div class="muted">품목을 고르면 배출 방법이 나옵니다.</div>',
                     unsafe_allow_html=True)
+
+
+def run_prediction(image_file):
+    """버튼을 눌렀을 때만 추론한다. 눌러야 도는 게 분명해야 기다릴 수 있다."""
+    try:
+        with st.spinner("모델 준비 중..."):
+            predictor = load_predictor(model_name)
+    except Exception as exc:
+        st.error(f"모델을 불러오지 못했습니다: {exc}")
+        return
+
+    with st.spinner("사진을 살펴보는 중..."):
+        st.session_state["result"] = predictor.predict(Image.open(image_file))
+
+    st.session_state["manual_slug"] = None
+    for key in ("cand_pick", "dlg_item", "dlg_cat"):
+        st.session_state.pop(key, None)
+    result_dialog()
 
 
 # ── 메인 ───────────────────────────────────────────────────────────────────────────
@@ -283,37 +301,35 @@ if model_name is None:
     st.error("학습된 모델이 없습니다. 먼저 `python -m src.train` 을 실행하세요.")
     st.stop()
 
-tab_cam, tab_file = st.tabs(["📷 촬영", "🖼️ 사진 선택"])
+tab_cam, tab_file, tab_list = st.tabs(["📷 촬영", "🖼️ 사진 선택", "📋 품목 직접 입력"])
+
 with tab_cam:
     shot = st.camera_input("촬영", label_visibility="collapsed")
+    if shot and st.button("결과 보기", key="go_cam", use_container_width=True,
+                          type="primary"):
+        run_prediction(shot)
+
 with tab_file:
     upload = st.file_uploader(
         "사진 선택", type=["jpg", "jpeg", "png", "webp"], label_visibility="collapsed")
+    if upload:
+        st.image(upload, use_container_width=True)
+        if st.button("결과 보기", key="go_file", use_container_width=True,
+                     type="primary"):
+            run_prediction(upload)
 
-if st.button("📋 사진 없이 목록에서 찾기", use_container_width=True):
-    st.session_state["result"] = None
-    result_dialog()
-
-image_file = shot or upload
-if image_file:
-    # 같은 사진으로 매 rerun마다 다시 추론하지 않도록 파일을 식별해 둔다
-    sig = (getattr(image_file, "file_id", None)
-           or f"{image_file.name}:{image_file.size}")
-    if st.session_state.get("sig") != sig:
-        try:
-            with st.spinner("모델 준비 중..."):
-                predictor = load_predictor(model_name)
-        except Exception as exc:
-            st.error(f"모델을 불러오지 못했습니다: {exc}")
-            st.stop()
-
-        with st.spinner("인식 중..."):
-            st.session_state["result"] = predictor.predict(Image.open(image_file))
-        st.session_state["sig"] = sig
-        # 새 사진이므로 이전 선택을 지우고 팝업을 연다
-        for key in ("cand_pick", "dlg_item", "dlg_cat"):
-            st.session_state.pop(key, None)
+with tab_list:
+    st.markdown('<div class="muted" style="margin-bottom:0.5rem;">'
+                '찾는 물건을 목록에서 고르세요.</div>', unsafe_allow_html=True)
+    cats = sorted({RULES[s].get("disposal_category") or "기타"
+                   for s in CLASSES if s in RULES})
+    cat = st.selectbox("배출 분류", ["전체"] + cats, key="tab_cat")
+    items = [s for s in CLASSES
+             if cat == "전체" or (RULES.get(s, {}).get("disposal_category") or "기타") == cat]
+    slug = st.selectbox("품목", items, key="tab_item",
+                        format_func=lambda s: CLASS_KOR_NAME.get(s, s))
+    if st.button("배출 방법 보기", key="go_list", use_container_width=True,
+                 type="primary"):
+        st.session_state["result"] = None
+        st.session_state["manual_slug"] = slug
         result_dialog()
-    else:
-        if st.button("결과 다시 보기", use_container_width=True):
-            result_dialog()
