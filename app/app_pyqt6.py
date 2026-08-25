@@ -480,6 +480,7 @@ class MainWindow(QMainWindow):
         btn_row.addWidget(self.btn_pick, 1)
         btn_row.addWidget(self.btn_again)
         left.addLayout(btn_row)
+        left.addWidget(self._manual_card())
         split.addLayout(left, 1)
 
         # 오른쪽: 결과
@@ -488,6 +489,87 @@ class MainWindow(QMainWindow):
 
         lo.addLayout(split, 1)
         self._show_placeholder()
+
+    def _manual_card(self):
+        """사진 없이 목록에서 직접 고르기. 오인식했거나 그냥 찾아보고 싶을 때 쓴다."""
+        card = QFrame()
+        card.setObjectName("Card")
+        card.setGraphicsEffect(create_shadow())
+        cl = QVBoxLayout(card)
+        cl.setContentsMargins(16, 12, 16, 12)
+        cl.setSpacing(8)
+
+        head = QHBoxLayout()
+        ic = QLabel()
+        ic.setPixmap(qta.icon("fa5s.list-ul", color=C_ACCENT).pixmap(15, 15))
+        head.addWidget(ic)
+        t = QLabel("목록에서 직접 찾기")
+        t.setStyleSheet(f"font-size: 15px; font-weight: bold; color: {C_TEXT};")
+        head.addWidget(t)
+        head.addStretch()
+        cl.addLayout(head)
+
+        row = QHBoxLayout()
+        row.setSpacing(8)
+        self.manual_cat = QComboBox()
+        cats = sorted({(self.rules.get(s, {}).get("disposal_category") or "기타")
+                       for s in CLASSES})
+        self.manual_cat.addItems(["전체"] + cats)
+        self.manual_cat.currentTextChanged.connect(self._manual_fill_items)
+        row.addWidget(self.manual_cat, 1)
+
+        self.manual_item = QComboBox()
+        row.addWidget(self.manual_item, 2)
+        cl.addLayout(row)
+
+        btn = QPushButton("배출 방법 보기")
+        btn.setObjectName("Outline")
+        btn.clicked.connect(self._show_manual_rule)
+        cl.addWidget(btn)
+
+        self._manual_fill_items("전체")
+        return card
+
+    def _manual_fill_items(self, category):
+        """분류를 고르면 그 분류의 품목만 남긴다."""
+        self.manual_item.clear()
+        for slug in CLASSES:
+            cat = self.rules.get(slug, {}).get("disposal_category") or "기타"
+            if category in ("전체", cat):
+                self.manual_item.addItem(CLASS_KOR_NAME.get(slug, slug), slug)
+
+    def _show_manual_rule(self):
+        slug = self.manual_item.currentData()
+        if not slug:
+            return
+        rule = self.rules.get(slug)
+        clear_layout(self.result_box)
+
+        head = QFrame()
+        head.setStyleSheet(
+            f"background-color: {C_ACCENT_TINT}; border: none; border-radius: 10px;")
+        hl = QVBoxLayout(head)
+        hl.setContentsMargins(18, 14, 18, 14)
+        hl.setSpacing(4)
+        row = QHBoxLayout()
+        row.addWidget(make_tag("직접 선택", C_ACCENT))
+        row.addStretch()
+        hl.addLayout(row)
+        name = QLabel(CLASS_KOR_NAME.get(slug, slug))
+        name.setObjectName("ResultName")
+        hl.addWidget(name)
+        note = QLabel("목록에서 고른 품목입니다. 사진 인식 결과가 아닙니다.")
+        note.setObjectName("Muted")
+        hl.addWidget(note)
+        self.result_box.addWidget(head)
+
+        if rule:
+            self.result_box.addWidget(self._rule_card(rule))
+        if slug in LOW_DATA_CLASSES:
+            self.result_box.addWidget(self._warn_card(
+                "학습 데이터가 적은 품목입니다",
+                "사진으로 인식할 때 오인식 가능성이 높은 품목입니다. "
+                "제품에 표시된 재질을 함께 확인하세요."))
 
     def _show_placeholder(self):
         clear_layout(self.result_box)
@@ -836,13 +918,11 @@ class MainWindow(QMainWindow):
 
         report = data["classification_report"]
         macro = report.get("macro avg", {})
-        total = int(sum(report[c]["support"] for c in CLASSES if c in report))
 
         row = QHBoxLayout()
         row.setSpacing(12)
         self._stat_card(row, "Accuracy", f"{data['accuracy']:.1%}", "fa5s.bullseye", C_GREEN)
         self._stat_card(row, "Macro F1", f"{macro.get('f1-score', 0):.3f}", "fa5s.balance-scale", C_ACCENT)
-        self._stat_card(row, "테스트 장수", f"{total:,}", "fa5s.images", C_YELLOW)
         self._stat_card(row, "클래스", str(len(CLASSES)), "fa5s.tags", C_MUTED)
         wrap = QWidget()
         wrap.setLayout(row)
