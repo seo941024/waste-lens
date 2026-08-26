@@ -60,7 +60,10 @@ if image_file:
     if rule:
         st.subheader("배출 안내")
         st.write(f"**배출 분류:** {rule['disposal_category'] or '조사 중'}")
-        st.write(rule["instruction"] or "배출 방법 데이터를 준비 중입니다.")
+        steps = rule["instruction"] or ["배출 방법 데이터를 준비 중입니다."]
+        if isinstance(steps, str):  # instruction이 문자열이던 옛 형식도 받아준다
+            steps = [steps]
+        st.write("\n".join(f"- {step}" for step in steps))
         if rule["needs_material_check"]:
             st.info("제품에 표시된 재질을 함께 확인해 주세요.")
         if rule["local_rule_required"]:
