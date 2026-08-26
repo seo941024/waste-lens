@@ -12,7 +12,7 @@ configs/   classes.py(18개 클래스 정의), config.py(경로·하이퍼파라
 src/       inspect_source, prepare_raw, dataset, transforms,
            model, train, evaluate, inference
 rules/     disposal_rules.json  (배출 규칙 DB — 공식 기준 조사 후 채움)
-app/       app.py (Streamlit 데모)
+app/       app_pyqt6.py (PyQt6 데스크톱 UI), app.py (Streamlit 모바일)
 results/   체크포인트, 평가 리포트, Confusion Matrix
 data/      train/ val/ test/  (Git 제외)
 ```
@@ -118,18 +118,51 @@ python -m src.evaluate --name improved
 
 Accuracy / Precision / Recall / F1, Confusion Matrix 이미지, Threshold별 Coverage·Accepted Accuracy, High-confidence wrong prediction 목록이 `results/`에 저장됩니다.
 
-## 5. 추론 · 웹 데모
+### 알려진 한계: `electric_fry_pan`
+
+AI-Hub 원본 자체가 41건(205장)뿐이라 재학습으로 해결되지 않습니다.
+`improved` 기준 test 10장 중 2장만 정답이고, 나머지는 대부분 `sealed_container`로
+높은 confidence와 함께 오분류됩니다 — confidence 임계값으로도 못 걸러냅니다.
+모델이 `electric_fry_pan`이라고 답한 경우에 한해 `configs/config.py`의
+`LOW_DATA_CLASSES`가 confidence를 낮추고 재질 확인을 안내하지만, 애초에
+`sealed_container`로 오분류된 경우는 이 안전장치가 걸리지 않습니다.
+전기프라이팬은 촬영을 피하거나, 결과가 이상하면 재질 표시를 직접 확인하세요.
+
+## 5. 추론 · 데모
+
+명령줄에서 한 장 확인:
 
 ```bash
 python -m src.inference --image sample.jpg --name improved
 ```
 
+**데스크톱 UI (PyQt6)** — 인터넷 없이 실행되는 기본 데모입니다.
+
+```bash
+python app/app_pyqt6.py
+```
+
+이미지를 끌어다 놓거나 선택하면 인식 결과·배출 안내·다른 후보를 보여주고,
+`배출 규칙` `모델 성능` `설정` 탭에서 18종 규칙과 평가 리포트를 확인할 수 있습니다.
+체크포인트 로딩은 백그라운드 스레드에서 하므로 창이 먼저 뜬 뒤 잠시 후 준비됩니다.
+
+**모바일 (Streamlit)** — 폰에서 찍어서 바로 확인하는 용도입니다.
+
 ```bash
 streamlit run app/app.py
 ```
 
+폰 브라우저에서 실행 시 표시되는 **Network URL**(예: `http://192.168.0.10:8501`)로
+접속하면 됩니다. PC와 같은 Wi-Fi여야 하고, Windows 방화벽에서 8501 포트를
+막고 있으면 허용해 주세요.
+
+촬영 탭이 기본이라 폰에서는 열자마자 카메라가 뜹니다. 화면은 폭 480px 기준으로
+잡혀 있어 데스크톱 브라우저에서 열면 가운데에 폰 크기로 표시됩니다.
+색은 `.streamlit/config.toml` 에서 PyQt UI와 같은 녹색 팔레트를 씁니다.
+
 ## 주의
 
-`rules/disposal_rules.json`의 `instruction`, `source`는 비어 있습니다.
-환경부·지자체 등 공식 기준을 확인해 채우고 `verified`를 `true`로 바꾼 뒤 서비스에 사용하세요.
-`disposal_category`는 AI-Hub 라벨 계열을 참고한 초안이며 실제 배출 기준이 아닙니다.
+`rules/disposal_rules.json`의 `instruction`과 `source`는 채워져 있으나
+**`verified`가 모두 `false`인 초안**입니다. 환경부·지자체 공식 기준으로 검증하고
+`verified`를 `true`로 바꾼 뒤 실제 서비스에 사용하세요.
+`disposal_category`는 AI-Hub 라벨 계열을 참고한 것이며 그 자체가 배출 기준은 아닙니다.

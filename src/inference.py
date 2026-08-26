@@ -11,7 +11,7 @@ import torch.nn.functional as F
 from PIL import Image
 
 from configs.classes import CLASSES, CLASS_KOR_NAME
-from configs.config import CKPT_DIR, CONF_HIGH, CONF_MID, RULES_PATH
+from configs.config import CKPT_DIR, CONF_HIGH, CONF_MID, LOW_DATA_CLASSES, RULES_PATH
 from src.model import get_device, load_checkpoint
 from src.transforms import build_transforms
 
@@ -46,9 +46,20 @@ class WastePredictor:
             level = "low"
             message = "물품을 정확히 인식하지 못했습니다. 다른 각도나 단색 배경에서 다시 촬영해 주세요."
 
+        # 학습 데이터가 극히 적은 클래스는 confidence가 높아도 신뢰할 수 없다.
+        # electric_fry_pan/fry_pan처럼 배출 분류가 다른 클래스를 잘못 안내하면
+        # 실제 피해(잘못된 배출)로 이어지므로 high여도 mid로 낮춰 재질 확인을 강제한다.
+        low_data = top["class"] in LOW_DATA_CLASSES
+        if low_data and level == "high":
+            level = "mid"
+        if low_data:
+            message = ("이 물품 종류는 학습 데이터가 적어 오인식 가능성이 높습니다. "
+                       "물품의 재질 표시를 반드시 함께 확인하세요.")
+
         result = {
             "confidence_level": level,
             "message": message,
+            "low_data_warning": low_data,
             "top1": top,
             "candidates": candidates,
             "rule": None,

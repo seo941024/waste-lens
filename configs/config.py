@@ -23,9 +23,6 @@ FINETUNE_LR = 1e-4
 WEIGHT_DECAY = 1e-4
 SEED = 42
 
-# 데이터 분할 비율 (계획서 5.3)
-SPLIT_RATIO = {"train": 0.70, "val": 0.15, "test": 0.15}
-
 # ImageNet 정규화 통계
 MEAN = [0.485, 0.456, 0.406]
 STD = [0.229, 0.224, 0.225]
@@ -33,3 +30,9 @@ STD = [0.229, 0.224, 0.225]
 # Confidence 임계값 (계획서 7장 - Day 13에 실측으로 확정)
 CONF_HIGH = 0.80
 CONF_MID = 0.55
+
+# AI-Hub 원본 자체가 적어 학습이 불충분한 클래스 (evaluate 결과 기준).
+# electric_fry_pan: test 10장 중 2장만 정답(원본 41건뿐).
+# electric_iron: test 55장 중 29장 정답, vacuum_cleaner와 혼동 다수(원본 182건).
+# 이 클래스로 예측되면 confidence가 높아도 신뢰하지 말고 재질 확인을 안내한다.
+LOW_DATA_CLASSES = {"electric_fry_pan", "electric_iron"}

@@ -1,0 +1,14 @@
+[theme]
+# 친환경 녹색 컨셉 — 기준색 #167331 (PyQt UI와 동일 팔레트)
+primaryColor = "#167331"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F4F8F5"
+textColor = "#1B2A20"
+font = "sans serif"
+
+[server]
+# 폰에서 접속하려면 같은 Wi-Fi에서 Network URL 을 열면 된다.
+headless = true
+
+[browser]
+gatherUsageStats = false
