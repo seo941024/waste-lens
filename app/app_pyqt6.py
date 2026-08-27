@@ -24,8 +24,9 @@ import qtawesome as qta
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from configs.classes import CLASSES, CLASS_KOR_NAME
-from configs.config import (CKPT_DIR, CONF_HIGH, CONF_MID, LOW_DATA_CLASSES,
-                            RESULTS_DIR, RULES_PATH)
+from configs.config import (CKPT_DIR, COLLECTION_DAYS_PATH, CONF_HIGH,
+                            CONF_MID, LOW_DATA_CLASSES, RESULTS_DIR,
+                            RULES_PATH)
 from src.inference import WastePredictor
 
 # ── 색상 팔레트 (친환경 녹색 컨셉, 기준색 #167331) ──────────────────────────────────
@@ -302,6 +303,7 @@ class MainWindow(QMainWindow):
         self.current_image = None
         self.model_name = (available_models() or ["improved"])[0]
         self.rules = self._load_rules()
+        self.collection_days = self._load_collection_days()
 
         main_widget = QWidget()
         main_widget.setObjectName("MainBG")
@@ -363,6 +365,13 @@ class MainWindow(QMainWindow):
         except Exception:
             return {}
 
+    def _load_collection_days(self):
+        try:
+            data = json.loads(COLLECTION_DAYS_PATH.read_text(encoding="utf-8"))
+        except Exception:
+            return {}
+        return {k: v for k, v in data.items() if not k.startswith("_")}
+
     def show_toast(self, msg, is_error=False):
         bar = self.statusBar()
         bar.showMessage(msg, 4000)
@@ -399,6 +408,7 @@ class MainWindow(QMainWindow):
         menus = [
             ("배출 안내", "fa5s.camera"),
             ("배출 규칙", "fa5s.book"),
+            ("배출 요일", "fa5s.calendar-alt"),
             ("모델 성능", "fa5s.chart-bar"),
             ("설정", "fa5s.sliders-h"),
         ]
@@ -433,13 +443,14 @@ class MainWindow(QMainWindow):
 
         if idx == 1:
             self.rules_refresh()
-        elif idx == 2:
+        elif idx == 3:
             self.stats_refresh()
 
     def init_pages(self):
         for attr, builder in [
             ("page_predict", self.build_predict),
             ("page_rules", self.build_rules),
+            ("page_days", self.build_days),
             ("page_stats", self.build_stats),
             ("page_settings", self.build_settings),
         ]:
@@ -911,7 +922,124 @@ class MainWindow(QMainWindow):
             self.rules_box.addWidget(card)
 
     # ════════════════════════════════════════════════════════════
-    # 3. 모델 성능
+    # 3. 배출 요일
+    # ════════════════════════════════════════════════════════════
+    def build_days(self, page):
+        lo = QVBoxLayout(page)
+        lo.setContentsMargins(20, 16, 20, 16)
+        lo.setSpacing(12)
+        lo.addLayout(self._section_header("배출 요일"))
+
+        desc = QLabel("자치구마다 배출요일 안내 형식이 달라 확인된 지역부터 하나씩 채워 나갑니다.")
+        desc.setObjectName("Muted")
+        desc.setWordWrap(True)
+        lo.addWidget(desc)
+
+        row = QHBoxLayout()
+        row.setSpacing(8)
+        self.days_sido = QComboBox()
+        self.days_sido.addItems(sorted(self.collection_days))
+        self.days_sido.currentTextChanged.connect(self._days_fill_gu)
+        row.addWidget(self.days_sido, 1)
+
+        self.days_gu = QComboBox()
+        self.days_gu.currentTextChanged.connect(self._days_refresh)
+        row.addWidget(self.days_gu, 1)
+        lo.addLayout(row)
+
+        self.days_scroll, self.days_box = self._scroll_area()
+        lo.addWidget(self.days_scroll, 1)
+
+        self._days_fill_gu(self.days_sido.currentText() if self.days_sido.count() else "")
+
+    def _days_fill_gu(self, sido):
+        self.days_gu.blockSignals(True)
+        self.days_gu.clear()
+        self.days_gu.addItems(sorted(self.collection_days.get(sido, {})))
+        self.days_gu.blockSignals(False)
+        self._days_refresh()
+
+    def _days_refresh(self):
+        clear_layout(self.days_box)
+        sido = self.days_sido.currentText()
+        gu = self.days_gu.currentText()
+        info = self.collection_days.get(sido, {}).get(gu)
+        if not info:
+            lbl = QLabel("지역을 선택하세요.")
+            lbl.setObjectName("Muted")
+            self.days_box.addWidget(lbl)
+            return
+
+        card = QFrame()
+        card.setObjectName("Card")
+        card.setGraphicsEffect(create_shadow())
+        cl = QVBoxLayout(card)
+        cl.setContentsMargins(20, 18, 20, 18)
+        cl.setSpacing(10)
+
+        head = QHBoxLayout()
+        t = QLabel(f"{sido} {gu}")
+        t.setStyleSheet(f"font-size: 18px; font-weight: bold; color: {C_TEXT};")
+        head.addWidget(t)
+        head.addStretch()
+        if not info.get("verified"):
+            head.addWidget(make_tag("확인 전 초안", C_YELLOW))
+        cl.addLayout(head)
+
+        if info.get("dong_specific"):
+            note = QLabel(info.get("caveat") or "동별로 배출요일이 달라 구 전체 공통 안내가 없습니다.")
+            note.setWordWrap(True)
+            note.setObjectName("RuleBody")
+            cl.addWidget(note)
+            if info.get("chatbot_url"):
+                link = QLabel(f'<a href="{info["chatbot_url"]}">동별 배출요일 조회하기 →</a>')
+                link.setOpenExternalLinks(True)
+                link.setStyleSheet(f"color: {C_ACCENT}; font-weight: bold;")
+                cl.addWidget(link)
+        else:
+            for item in info.get("schedule", []):
+                row = QFrame()
+                row.setStyleSheet(f"background-color: {C_BG}; border-radius: 8px;")
+                rl = QVBoxLayout(row)
+                rl.setContentsMargins(12, 10, 12, 10)
+                rl.setSpacing(4)
+
+                top = QHBoxLayout()
+                label = QLabel(item["label"])
+                label.setStyleSheet(f"font-weight: bold; color: {C_TEXT}; font-size: 14px;")
+                top.addWidget(label)
+                top.addStretch()
+                for day in item.get("days", []):
+                    top.addWidget(make_tag(day, C_ACCENT))
+                rl.addLayout(top)
+
+                if item.get("time"):
+                    time_lbl = QLabel(f"배출 시간: {item['time']}")
+                    time_lbl.setObjectName("Muted")
+                    rl.addWidget(time_lbl)
+                if item.get("note"):
+                    note_lbl = QLabel(item["note"])
+                    note_lbl.setObjectName("Muted")
+                    note_lbl.setWordWrap(True)
+                    rl.addWidget(note_lbl)
+                cl.addWidget(row)
+
+            if info.get("caveat"):
+                caveat = QLabel(f"⚠ {info['caveat']}")
+                caveat.setWordWrap(True)
+                caveat.setObjectName("Muted")
+                cl.addWidget(caveat)
+
+        if info.get("source"):
+            src = QLabel(f'<a href="{info["source"]}">출처: 구청 공식 안내 →</a>')
+            src.setOpenExternalLinks(True)
+            src.setObjectName("Muted")
+            cl.addWidget(src)
+
+        self.days_box.addWidget(card)
+
+    # ════════════════════════════════════════════════════════════
+    # 4. 모델 성능
     # ════════════════════════════════════════════════════════════
     def build_stats(self, page):
         lo = QVBoxLayout(page)
@@ -1063,7 +1191,7 @@ class MainWindow(QMainWindow):
         return lbl
 
     # ════════════════════════════════════════════════════════════
-    # 4. 설정
+    # 5. 설정
     # ════════════════════════════════════════════════════════════
     def build_settings(self, page):
         lo = QVBoxLayout(page)

@@ -11,6 +11,7 @@ TEST_DIR = DATA_DIR / "test"
 RESULTS_DIR = ROOT / "results"
 CKPT_DIR = RESULTS_DIR / "checkpoints"
 RULES_PATH = ROOT / "rules" / "disposal_rules.json"
+COLLECTION_DAYS_PATH = ROOT / "rules" / "collection_days.json"
 
 IMG_SIZE = 224
 # RTX 3080 10GB 실측: batch 64 = VRAM 1.03GB(10%), 2033 img/s.

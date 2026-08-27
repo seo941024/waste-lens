@@ -22,7 +22,8 @@ import streamlit as st
 from PIL import Image
 
 from configs.classes import CLASSES, CLASS_KOR_NAME
-from configs.config import CKPT_DIR, CONF_HIGH, CONF_MID, RULES_PATH
+from configs.config import (CKPT_DIR, COLLECTION_DAYS_PATH, CONF_HIGH,
+                            CONF_MID, RULES_PATH)
 from src.inference import WastePredictor
 
 # ── 팔레트 (PyQt UI와 동일, 기준색 #167331) ────────────────────────────────────────
@@ -125,7 +126,17 @@ def pick_model():
     return found[0].stem if found else None
 
 
+@st.cache_data(show_spinner=False)
+def load_collection_days():
+    try:
+        data = json.loads(COLLECTION_DAYS_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    return {k: v for k, v in data.items() if not k.startswith("_")}
+
+
 RULES = load_rules()
+COLLECTION_DAYS = load_collection_days()
 
 
 def esc(text):
@@ -205,6 +216,78 @@ def rule_card(slug, source_label=""):
       {notes_html}{source_html}
     </div>
     """, unsafe_allow_html=True)
+
+
+def render_collection_days():
+    """지역별 배출요일. 자치구마다 안내 형식이 달라 확인된 곳부터 채운다."""
+    if not COLLECTION_DAYS:
+        st.markdown('<div class="muted">배출요일 데이터가 없습니다.</div>',
+                    unsafe_allow_html=True)
+        return
+
+    sido = st.selectbox("시/도", sorted(COLLECTION_DAYS), key="days_sido")
+    gus = sorted(COLLECTION_DAYS.get(sido, {}))
+    gu = st.selectbox("구", gus, key="days_gu")
+    info = COLLECTION_DAYS.get(sido, {}).get(gu)
+    if not info:
+        return
+
+    verified_tag = ("" if info.get("verified") else
+                    f'<span class="tag" style="background:{C_YELLOW};">확인 전 초안</span>')
+
+    if info.get("dong_specific"):
+        chatbot_html = (f'<div style="margin-top:0.6rem;">'
+                        f'<a href="{esc(info["chatbot_url"])}" target="_blank" '
+                        f'style="color:{C_ACCENT};font-weight:700;">동별 배출요일 조회하기 →</a></div>'
+                        ) if info.get("chatbot_url") else ""
+        st.markdown(f"""
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span class="rule-title">{esc(sido)} {esc(gu)}</span>{verified_tag}
+          </div>
+          <div class="rule-body" style="margin-top:0.5rem;">
+            {esc(info.get("caveat") or "동별로 배출요일이 달라 구 전체 공통 안내가 없습니다.")}</div>
+          {chatbot_html}
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        rows = ""
+        for item in info.get("schedule", []):
+            days_html = "".join(
+                f'<span class="tag" style="background:{C_ACCENT};margin-left:0.3rem;">{esc(d)}</span>'
+                for d in item.get("days", []))
+            time_html = (f'<div class="muted" style="margin-top:0.2rem;">배출 시간: {esc(item["time"])}</div>'
+                        if item.get("time") else "")
+            note_html = (f'<div class="muted" style="margin-top:0.15rem;">{esc(item["note"])}</div>'
+                        if item.get("note") else "")
+            # 한 줄 문자열로 조립한다 — 중첩된 여러 줄 f-string을 바깥 템플릿보다
+            # 깊게 들여쓰면 최종 문자열의 앞 공백이 CommonMark의 '4칸 이상 들여쓰기
+            # = 코드블록' 규칙에 걸려 HTML이 그대로 텍스트로 보이는 버그가 났었다.
+            rows += (
+                f'<div style="background:{C_ACCENT_TINT};border-radius:8px;'
+                f'padding:0.6rem 0.8rem;margin-top:0.5rem;">'
+                f'<div style="display:flex;justify-content:space-between;align-items:center;">'
+                f'<span style="font-weight:700;color:{C_TEXT};font-size:0.92rem;">'
+                f'{esc(item["label"])}</span><span>{days_html}</span></div>'
+                f'{time_html}{note_html}</div>'
+            )
+        caveat_html = (f'<div class="muted" style="margin-top:0.6rem;">⚠ {esc(info["caveat"])}</div>'
+                      if info.get("caveat") else "")
+        st.markdown(f"""
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span class="rule-title">{esc(sido)} {esc(gu)}</span>{verified_tag}
+          </div>
+          {rows}{caveat_html}
+        </div>
+        """, unsafe_allow_html=True)
+
+    if info.get("source"):
+        st.markdown(
+            f'<div class="muted" style="font-size:0.76rem;">'
+            f'<a href="{esc(info["source"])}" target="_blank" style="color:{C_MUTED};">'
+            f'출처: 구청 공식 안내 →</a></div>',
+            unsafe_allow_html=True)
 
 
 def manual_picker(key_prefix, expanded):
@@ -301,7 +384,8 @@ if model_name is None:
     st.error("학습된 모델이 없습니다. 먼저 `python -m src.train` 을 실행하세요.")
     st.stop()
 
-tab_cam, tab_file, tab_list = st.tabs(["📷 촬영", "🖼️ 사진 선택", "📋 품목 직접 입력"])
+tab_cam, tab_file, tab_list, tab_days = st.tabs(
+    ["📷 촬영", "🖼️ 사진 선택", "📋 품목 직접 입력", "🗓️ 배출 요일"])
 
 with tab_cam:
     shot = st.camera_input("촬영", label_visibility="collapsed")
@@ -333,3 +417,9 @@ with tab_list:
         st.session_state["result"] = None
         st.session_state["manual_slug"] = slug
         result_dialog()
+
+with tab_days:
+    st.markdown('<div class="muted" style="margin-bottom:0.5rem;">'
+                '자치구마다 안내 형식이 달라 확인된 지역부터 채워가고 있어요.</div>',
+                unsafe_allow_html=True)
+    render_collection_days()
