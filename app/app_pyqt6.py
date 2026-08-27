@@ -84,6 +84,11 @@ QPushButton#Primary:disabled {{ background-color: {C_MUTED}; }}
 QPushButton#Outline {{ background-color: {C_ACCENT_DARK}; color: white; }}
 QPushButton#Outline:hover {{ background-color: {C_SIDEBAR}; }}
 QPushButton#Muted {{ background-color: {C_MUTED}; color: white; }}
+QPushButton#SectionTab {{
+    background-color: {C_BG}; color: {C_MUTED};
+    padding: 7px 14px; font-size: 13px; border-radius: 8px;
+}}
+QPushButton#SectionTab:checked {{ background-color: {C_ACCENT}; color: white; }}
 QComboBox {{
     padding: 8px 12px;
     border: none;
@@ -483,12 +488,55 @@ class MainWindow(QMainWindow):
         left.addWidget(self._manual_card())
         split.addLayout(left, 1)
 
-        # 오른쪽: 결과
-        self.result_scroll, self.result_box = self._scroll_area()
-        split.addWidget(self.result_scroll, 1)
+        # 오른쪽: 결과 — 섹션 탭 + 스택. 한 번에 한 섹션만 보여줘야
+        # 배출 안내 본문이 길어도 화면 아래로 밀려서 잘리지 않는다.
+        right = QVBoxLayout()
+        right.setSpacing(8)
+        self.section_row = QHBoxLayout()
+        self.section_row.setSpacing(6)
+        right.addLayout(self.section_row)
+        self.section_stack = QStackedWidget()
+        right.addWidget(self.section_stack, 1)
+        split.addLayout(right, 1)
+        self._section_btns = []
 
         lo.addLayout(split, 1)
         self._show_placeholder()
+
+    def _set_sections(self, sections, default_index=0):
+        """sections: [(탭 이름, 내용 QWidget)]. 하나만 보이고 탭으로 전환한다."""
+        while self.section_row.count():
+            item = self.section_row.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+        while self.section_stack.count():
+            w = self.section_stack.widget(0)
+            self.section_stack.removeWidget(w)
+            w.deleteLater()
+
+        self._section_btns = []
+        show_tabs = len(sections) > 1
+        for i, (label, widget) in enumerate(sections):
+            if show_tabs:
+                btn = QPushButton(label)
+                btn.setObjectName("SectionTab")
+                btn.setCheckable(True)
+                btn.clicked.connect(lambda _, idx=i: self._switch_section(idx))
+                self.section_row.addWidget(btn)
+                self._section_btns.append(btn)
+
+            page_scroll, page_box = self._scroll_area()
+            page_box.addWidget(widget)
+            self.section_stack.addWidget(page_scroll)
+
+        if show_tabs:
+            self.section_row.addStretch()
+        self._switch_section(default_index)
+
+    def _switch_section(self, idx):
+        self.section_stack.setCurrentIndex(idx)
+        for i, btn in enumerate(self._section_btns):
+            btn.setChecked(i == idx)
 
     def _manual_card(self):
         """사진 없이 목록에서 직접 고르기. 오인식했거나 그냥 찾아보고 싶을 때 쓴다."""
@@ -543,7 +591,11 @@ class MainWindow(QMainWindow):
         if not slug:
             return
         rule = self.rules.get(slug)
-        clear_layout(self.result_box)
+
+        body = QWidget()
+        bl = QVBoxLayout(body)
+        bl.setContentsMargins(0, 0, 0, 0)
+        bl.setSpacing(10)
 
         head = QFrame()
         head.setStyleSheet(
@@ -561,18 +613,20 @@ class MainWindow(QMainWindow):
         note = QLabel("목록에서 고른 품목입니다. 사진 인식 결과가 아닙니다.")
         note.setObjectName("Muted")
         hl.addWidget(note)
-        self.result_box.addWidget(head)
+        bl.addWidget(head)
 
         if rule:
-            self.result_box.addWidget(self._rule_card(rule))
+            bl.addWidget(self._rule_card(rule))
         if slug in LOW_DATA_CLASSES:
-            self.result_box.addWidget(self._warn_card(
+            bl.addWidget(self._warn_card(
                 "학습 데이터가 적은 품목입니다",
                 "사진으로 인식할 때 오인식 가능성이 높은 품목입니다. "
                 "제품에 표시된 재질을 함께 확인하세요."))
+        bl.addStretch()
+
+        self._set_sections([("배출 안내", body)])
 
     def _show_placeholder(self):
-        clear_layout(self.result_box)
         card = QFrame()
         card.setObjectName("Card")
         card.setGraphicsEffect(create_shadow())
@@ -588,7 +642,7 @@ class MainWindow(QMainWindow):
         msg.setObjectName("Muted")
         msg.setAlignment(Qt.AlignmentFlag.AlignCenter)
         cl.addWidget(msg)
-        self.result_box.addWidget(card)
+        self._set_sections([("안내", card)])
 
     def pick_image(self):
         path, _ = QFileDialog.getOpenFileName(self, "이미지 선택", "", IMG_EXTS)
@@ -607,11 +661,10 @@ class MainWindow(QMainWindow):
         self.btn_pick.setEnabled(False)
         self.btn_again.setEnabled(False)
 
-        clear_layout(self.result_box)
         busy = QLabel("인식 중...")
         busy.setObjectName("Muted")
         busy.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.result_box.addWidget(busy)
+        self._set_sections([("안내", busy)])
 
         self.worker = PredictWorker(self.predictor, path)
         self.worker.done.connect(self.show_result)
@@ -621,14 +674,12 @@ class MainWindow(QMainWindow):
     def _predict_failed(self, msg):
         self.btn_pick.setEnabled(True)
         self.btn_again.setEnabled(True)
-        clear_layout(self.result_box)
         self._show_placeholder()
         self.show_toast(f"인식 실패: {msg}", True)
 
     def show_result(self, result):
         self.btn_pick.setEnabled(True)
         self.btn_again.setEnabled(True)
-        clear_layout(self.result_box)
 
         top = result["top1"]
         level = result["confidence_level"]
@@ -662,22 +713,27 @@ class MainWindow(QMainWindow):
         msg.setWordWrap(True)
         msg.setObjectName("Muted")
         cl.addWidget(msg)
-        self.result_box.addWidget(card)
 
-        # 저데이터 경고
+        summary = QWidget()
+        sl = QVBoxLayout(summary)
+        sl.setContentsMargins(0, 0, 0, 0)
+        sl.setSpacing(10)
+        sl.addWidget(card)
         if result.get("low_data_warning"):
-            self.result_box.addWidget(self._warn_card(
+            sl.addWidget(self._warn_card(
                 "학습 데이터가 적은 품목입니다",
                 "이 종류는 원본 데이터가 부족해 오인식 가능성이 높습니다. "
                 "제품에 표시된 재질을 반드시 함께 확인하세요."))
+        sl.addStretch()
 
-        # 배출 안내
+        sections = [("요약", summary)]
         rule = result.get("rule")
+        default_idx = 0
         if rule:
-            self.result_box.addWidget(self._rule_card(rule))
-
-        # Top-3
-        self.result_box.addWidget(self._candidates_card(result["candidates"]))
+            sections.append(("배출 안내", self._rule_card(rule)))
+            default_idx = 1  # 원하는 건 결과가 아니라 배출 방법이므로 바로 그 탭으로
+        sections.append(("다른 후보", self._candidates_card(result["candidates"])))
+        self._set_sections(sections, default_index=default_idx)
 
     def _warn_card(self, title, body):
         card = QFrame()
@@ -826,14 +882,16 @@ class MainWindow(QMainWindow):
             name = QLabel(rule.get("item_name") or CLASS_KOR_NAME.get(slug, slug))
             name.setStyleSheet(f"font-size: 17px; font-weight: bold; color: {C_TEXT};")
             head.addWidget(name)
-            slug_lbl = QLabel(slug)
-            slug_lbl.setObjectName("Muted")
-            head.addWidget(slug_lbl)
             head.addStretch()
             if slug in LOW_DATA_CLASSES:
                 head.addWidget(make_tag("데이터 부족", C_RED))
             head.addWidget(make_tag(rule.get("disposal_category") or "미분류", C_ACCENT))
             cl.addLayout(head)
+
+            divider = QFrame()
+            divider.setFixedHeight(1)
+            divider.setStyleSheet(f"background-color: {C_BORDER}; border: none;")
+            cl.addWidget(divider)
 
             body = QLabel(rule.get("instruction") or "배출 방법 데이터를 준비 중입니다.")
             body.setWordWrap(True)
