@@ -37,3 +37,11 @@ CONF_MID = 0.55
 # electric_iron: test 55장 중 29장 정답, vacuum_cleaner와 혼동 다수(원본 182건).
 # 이 클래스로 예측되면 confidence가 높아도 신뢰하지 말고 재질 확인을 안내한다.
 LOW_DATA_CLASSES = {"electric_fry_pan", "electric_iron"}
+
+# LOW_DATA_CLASSES 중에서도 recall이 너무 낮아(< 0.3) 사진 인식 자체가
+# 사실상 의미 없는 클래스. YOLO(COCO) 크롭 실험(마스킹)도 해봤지만 COCO
+# 80종에 이런 생활폐기물이 없어 엉뚱하게 잘려서 오히려 성능이 떨어졌다
+# (실측: fry_pan 100%→69.5% mobile_phone으로 바뀌는 등). 데이터를
+# 늘리거나 커스텀 탐지기를 새로 학습하기 전까지는, 사진 인식에 기대지
+# 말고 목록에서 직접 찾도록 안내하는 게 낫다 (electric_fry_pan recall 0.20).
+SEARCH_RECOMMENDED_CLASSES = {"electric_fry_pan"}

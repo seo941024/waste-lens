@@ -730,7 +730,9 @@ class MainWindow(QMainWindow):
         sl.setContentsMargins(0, 0, 0, 0)
         sl.setSpacing(10)
         sl.addWidget(card)
-        if result.get("low_data_warning"):
+        if result.get("search_recommended"):
+            sl.addWidget(self._search_recommend_card(top["class"]))
+        elif result.get("low_data_warning"):
             sl.addWidget(self._warn_card(
                 "학습 데이터가 적은 품목입니다",
                 "이 종류는 원본 데이터가 부족해 오인식 가능성이 높습니다. "
@@ -745,6 +747,46 @@ class MainWindow(QMainWindow):
             default_idx = 1  # 원하는 건 결과가 아니라 배출 방법이므로 바로 그 탭으로
         sections.append(("다른 후보", self._candidates_card(result["candidates"])))
         self._set_sections(sections, default_index=default_idx)
+
+    def _search_recommend_card(self, slug):
+        """사진 인식이 사실상 의미 없는 클래스(예: electric_fry_pan)는
+        재질 확인 정도가 아니라 목록에서 직접 찾도록 유도한다."""
+        card = QFrame()
+        card.setStyleSheet("background-color: #FEE2E2; border: none; border-radius: 10px;")
+        cl = QVBoxLayout(card)
+        cl.setContentsMargins(16, 14, 16, 14)
+        cl.setSpacing(8)
+
+        row = QHBoxLayout()
+        ic = QLabel()
+        ic.setPixmap(qta.icon("fa5s.search", color="#991B1B").pixmap(16, 16))
+        row.addWidget(ic)
+        t = QLabel("사진 인식이 어려운 품목이에요")
+        t.setStyleSheet("font-size: 15px; font-weight: bold; color: #991B1B;")
+        row.addWidget(t)
+        row.addStretch()
+        cl.addLayout(row)
+
+        b = QLabel("YOLO 마스킹 실험까지 해봤지만 이 품목은 사진만으로는 정확도가 낮습니다. "
+                   "목록에서 직접 찾아 확인하세요.")
+        b.setWordWrap(True)
+        b.setStyleSheet("font-size: 14px; color: #991B1B;")
+        cl.addWidget(b)
+
+        btn = QPushButton("목록에서 바로 찾기")
+        btn.setObjectName("Outline")
+        btn.clicked.connect(lambda: self._jump_to_manual(slug))
+        cl.addWidget(btn)
+        return card
+
+    def _jump_to_manual(self, slug):
+        """검색 유도 카드의 버튼 — 목록 콤보를 이 클래스로 맞추고 바로 결과를 보여준다."""
+        cat = self.rules.get(slug, {}).get("disposal_category") or "전체"
+        self.manual_cat.setCurrentText(cat)
+        idx = self.manual_item.findData(slug)
+        if idx >= 0:
+            self.manual_item.setCurrentIndex(idx)
+        self._show_manual_rule()
 
     def _warn_card(self, title, body):
         card = QFrame()

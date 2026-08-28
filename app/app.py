@@ -168,7 +168,23 @@ def confidence_card(result):
     </div>
     """, unsafe_allow_html=True)
 
-    if result.get("low_data_warning"):
+    if result.get("search_recommended"):
+        # 사진 인식이 사실상 의미 없는 클래스(예: electric_fry_pan) — 재질
+        # 확인 정도가 아니라 목록 탭으로 직접 유도한다. 눌러도 안전하도록
+        # '품목 직접 입력' 탭의 콤보를 이 클래스로 미리 채워둔다.
+        top_class = top["class"]
+        cat = RULES.get(top_class, {}).get("disposal_category") or "기타"
+        st.markdown(f"""
+        <div class="card tinted" style="background:{C_RED_TINT};">
+          <div style="font-weight:700;color:#991B1B;font-size:0.9rem;">
+            📋 사진 인식이 어려운 품목이에요</div>
+          <div style="color:#991B1B;font-size:0.84rem;margin-top:0.3rem;line-height:1.5;">
+            아래 '품목 직접 입력' 탭에서 확인해 주세요. 그 탭을 이 품목으로 미리 맞춰뒀어요.</div>
+        </div>
+        """, unsafe_allow_html=True)
+        st.session_state["tab_cat"] = cat
+        st.session_state["tab_item"] = top_class
+    elif result.get("low_data_warning"):
         st.markdown(f"""
         <div class="card tinted" style="background:{C_YELLOW_TINT};">
           <div style="font-weight:700;color:#92400E;font-size:0.9rem;">

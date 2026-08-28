@@ -11,7 +11,8 @@ import torch.nn.functional as F
 from PIL import Image
 
 from configs.classes import CLASSES, CLASS_KOR_NAME
-from configs.config import CKPT_DIR, CONF_HIGH, CONF_MID, LOW_DATA_CLASSES, RULES_PATH
+from configs.config import (CKPT_DIR, CONF_HIGH, CONF_MID, LOW_DATA_CLASSES,
+                            RULES_PATH, SEARCH_RECOMMENDED_CLASSES)
 from src.model import get_device, load_checkpoint
 from src.transforms import build_transforms
 
@@ -56,10 +57,18 @@ class WastePredictor:
             message = ("이 물품 종류는 학습 데이터가 적어 오인식 가능성이 높습니다. "
                        "물품의 재질 표시를 반드시 함께 확인하세요.")
 
+        # 사진 인식 자체가 사실상 의미 없는 극소수 클래스는, 재질 확인 정도가
+        # 아니라 목록에서 직접 찾도록 적극적으로 유도한다 (예: electric_fry_pan).
+        search_recommended = top["class"] in SEARCH_RECOMMENDED_CLASSES
+        if search_recommended:
+            message = ("이 물품은 사진만으로는 정확히 인식하기 어렵습니다. "
+                       "'품목 직접 입력'에서 찾아 확인하는 걸 추천합니다.")
+
         result = {
             "confidence_level": level,
             "message": message,
             "low_data_warning": low_data,
+            "search_recommended": search_recommended,
             "top1": top,
             "candidates": candidates,
             "rule": None,
