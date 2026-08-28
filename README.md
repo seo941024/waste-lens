@@ -173,3 +173,6 @@ streamlit run app/app.py
 필요한 지역이 생길 때마다 하나씩 조사해 추가하는 방식입니다. 종로구처럼 배출요일이
 동마다 달라 정적 데이터 자체가 없는 곳은 `dong_specific: true`로 표시하고
 `chatbot_url`(해당 구의 동별 조회 서비스)로 안내합니다.
+
+인식률 관련 한계(과적합, 도메인 차이, 마스킹 실험 결과, 극소수 클래스 대응)는
+[docs/model_limitations.md](docs/model_limitations.md)에 정리했습니다.
