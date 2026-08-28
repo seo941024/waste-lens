@@ -70,6 +70,54 @@ AI-Hub 원본은 촬영 조건이 통제된 사진들이다. 실제 사용자가
 완전히 잘못 분류되는 경우는 예측 클래스 자체가 다르므로 막을 방법이
 없다 — 이건 사후 UI로 해결 가능한 문제가 아니다.
 
+## 6. DINOv2를 검토했으나, 이번에도 재학습/파이프라인 변경 없이 기각했다
+
+"극소수 클래스는 ResNet18 대신 DINOv2(자기지도학습 기반 비전 파운데이션
+모델) 임베딩 + 별도 분류기로 판단하면 어떨까"를 실측했다. DINOv2는
+backbone을 완전히 얼려두고 그 위에 가벼운 분류기만 학습시키는 방식이라
+파라미터가 적어 소량 데이터에서 과적합이 덜하다는 게 아이디어의 근거였다.
+
+**1차 결과(18-way 선형분류기, test 8,664장 전체):**
+
+| | improved(ResNet18) | DINOv2(vits14, frozen)+선형분류기 |
+|---|---|---|
+| 전체 Accuracy | 92.2% | 87.1% |
+| Macro F1 | 0.86 | 0.81 |
+| `electric_fry_pan` recall | 0.20 | 0.80 |
+| `electric_iron` recall | 0.53 | 0.76 |
+
+약한 두 클래스의 recall만 보면 극적으로 좋아 보였다. 하지만 **precision을
+보니 얘기가 달라졌다** — `electric_fry_pan`으로 예측된 25건 중 실제
+정답은 7건뿐(precision 0.28), `electric_iron`도 96건 중 41건뿐(precision
+0.43). 나머지는 멀쩡한 `sealed_container`·`vacuum_cleaner`를 이 클래스로
+잘못 우긴 것이다. 18개 클래스가 하나의 소프트맥스에서 경쟁하다 보니 이
+두 클래스 쪽으로 쏠리는 편향이 생긴 것으로 보인다.
+
+**2차로 이진분류기(해당 클래스 vs 나머지 전체, `class_weight="balanced"`)
+로 바꿔 precision-recall 곡선을 threshold별로 다시 봤다:**
+
+| threshold | electric_fry_pan (precision/recall) | electric_iron (precision/recall) |
+|---|---|---|
+| 0.70 | 0.30 / 0.60 | 0.50 / 0.73 |
+| 0.90 | 0.42 / 0.50 | 0.54 / 0.69 |
+| 0.99 | 1.00 / **0.20** | 0.65 / 0.58 |
+
+`electric_fry_pan`은 precision을 100%까지 올리면 recall이 ResNet과
+똑같은 0.20으로 떨어진다 — **얻는 게 없다.** test가 10장뿐이라 애초에
+통계적으로 신뢰할 만한 threshold를 고를 근거 자체가 부족하다.
+`electric_iron`은 그나마 낫지만(threshold 0.95에서 precision 0.63/
+recall 0.67), 이대로 배포하면 **멀쩡한 물건 3개 중 1개를 전기다리미로
+잘못 안내**하게 되어 마스킹 실험 때와 같은 실수(잘 되던 것까지
+망가뜨림)를 반복하는 셈이다.
+
+**결론: DINOv2 방향 자체는 유망하지만(recall 개선은 실제로 확인됨),
+지금 데이터양(electric_fry_pan test 10장, electric_iron test 55장)으로는
+정밀도와 재현율을 동시에 잡을 근거가 부족하다. 배포하지 않고 기각한다.**
+현재 배포된 `SEARCH_RECOMMENDED_CLASSES` 안내가 여전히 가장 안전한
+완화책이다. 나중에 electric_fry_pan/electric_iron 실사진을 더 모으면
+재검토할 가치는 있다 (DINOv2 학습 자체는 재학습이 필요 없어 비용이
+크지 않다 — 임베딩 재추출 + 분류기 재학습에 수 분 수준).
+
 ## 다음 할 일 (실사진 수집 — 자동화 불가, 팀 작업 필요)
 
 이 문서의 3번(도메인 차이)이 핵심 병목이고, 검증·해결 둘 다 **실사용
