@@ -8,7 +8,7 @@ import json
 
 import torch
 import torch.nn.functional as F
-from PIL import Image
+from PIL import Image, ImageOps
 
 from configs.classes import CLASSES, CLASS_KOR_NAME
 from configs.config import (CKPT_DIR, CONF_HIGH, CONF_MID, LOW_DATA_CLASSES,
@@ -28,6 +28,10 @@ class WastePredictor:
     def predict(self, image, topk=3):
         if not isinstance(image, Image.Image):
             image = Image.open(image)
+        # 폰으로 세로로 찍은 사진 상당수는 픽셀은 안 돌리고 EXIF 태그로만
+        # "몇 도 돌려서 보라"고 표시한다. 이걸 무시하면 모델에는 옆으로
+        # 눕거나 거꾸로 뒤집힌 이미지가 들어가 인식이 크게 나빠질 수 있다.
+        image = ImageOps.exif_transpose(image)
         tensor = self.transform(image.convert("RGB")).unsqueeze(0).to(self.device)
         probs = F.softmax(self.model(tensor), dim=1)[0].cpu()
 
