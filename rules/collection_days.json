@@ -1,0 +1,73 @@
+{
+  "_readme": "지역별 재활용품 배출요일. 처음엔 서울 4개 구만 조사해 넣었다. 자치구마다 사이트 구조와 데이터 공개 형태가 달라 전국 자동수집은 비현실적이라(종로구가 그 예), 구청 공식 페이지를 하나씩 확인해 손으로 채우는 방식으로 시작한다. dong_specific=true인 구는 배출요일이 동마다 달라 정적 데이터가 없고, chatbot_url로만 조회 가능하다.",
+  "서울특별시": {
+    "강남구": {
+      "dong_specific": false,
+      "schedule": [
+        {
+          "label": "일반 재활용품 (유색 페트병·플라스틱·캔·병류)",
+          "days": ["월", "수", "금", "일"],
+          "time": "20:00 ~ 익일 05:00",
+          "note": "녹색 그물망에 담아 배출"
+        },
+        {
+          "label": "투명 페트병 · 비닐류",
+          "days": ["목"],
+          "time": "20:00 ~ 익일 05:00",
+          "note": "일반 재활용품과 반드시 분리"
+        }
+      ],
+      "caveat": "공동주택, 연면적 1,000㎡ 이상 건물은 별도 자체 처리 — 관리사무소 안내 확인",
+      "source": "https://www.gangnam.go.kr/board/waste/2/view.do?mid=ID02_011109",
+      "verified": false
+    },
+    "관악구": {
+      "dong_specific": false,
+      "schedule": [
+        {
+          "label": "일반 재활용품 (종이·캔·플라스틱·병·스티로폼 등)",
+          "days": ["일", "월", "화", "수", "금"],
+          "time": "18:00 ~ 24:00",
+          "note": "재활용 전용봉투 또는 투명봉투 사용"
+        },
+        {
+          "label": "투명 페트병 · 비닐류",
+          "days": ["목"],
+          "time": "18:00 ~ 24:00",
+          "note": ""
+        }
+      ],
+      "caveat": "토요일은 모든 품목 배출 불가",
+      "source": "https://www.gwanak.go.kr/site/gwanak/07/10703010200002016051206.jsp",
+      "verified": false
+    },
+    "노원구": {
+      "dong_specific": false,
+      "schedule": [
+        {
+          "label": "기타 재활용품 (종이·캔·플라스틱·병·스티로폼 등)",
+          "days": ["일", "월", "화", "수", "금"],
+          "time": "18:00 ~ 24:00",
+          "note": "목·토요일 제외 매일"
+        },
+        {
+          "label": "투명 페트병 · 비닐류",
+          "days": ["목"],
+          "time": "18:00 ~ 24:00",
+          "note": ""
+        }
+      ],
+      "caveat": "공동주택(아파트)은 단지별 지정 요일에 지정 수거함으로 별도 배출 — 관리사무소 확인 필요",
+      "source": "https://www.nowon.kr/www/minwon/minwon4/minwon4_03/minwon4_03_04.jsp",
+      "verified": false
+    },
+    "종로구": {
+      "dong_specific": true,
+      "schedule": [],
+      "caveat": "동별로 배출요일이 다르고 대행업체도 달라 구 전체 공통 표가 없다. '종로Pick' 카카오톡 챗봇에서 동을 선택해 조회해야 한다.",
+      "chatbot_url": "https://app.jongno.go.kr/main/wasteGuide",
+      "source": "https://www.jongno.go.kr/bigclean/bcInfo/bcInfo.jsp",
+      "verified": false
+    }
+  }
+}
