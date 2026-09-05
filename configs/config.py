@@ -29,8 +29,14 @@ MEAN = [0.485, 0.456, 0.406]
 STD = [0.229, 0.224, 0.225]
 
 # Confidence 임계값 (계획서 7장 - Day 13에 실측으로 확정)
+# CONF_MID는 0.55 -> 0.50으로 낮췄다 (docs/handoff.md 실사진 테스트 근거).
+# 정답인 실사진 2건(맥콜 캔 0.547, 우유팩 0.548)이 0.55 기준으로는
+# "low"(재촬영 안내, 규칙 미표시)로 잘못 처리됐다. 0.50이면 이 두 건이
+# "mid"(경고와 함께 규칙 표시)로 들어온다. AI-Hub 테스트셋(8,664장)
+# 기준으로는 coverage 0.9773->0.9870, accepted_accuracy 0.9340->0.9294로
+# 거의 손해가 없다 (results/improved_eval.json의 threshold_analysis).
 CONF_HIGH = 0.80
-CONF_MID = 0.55
+CONF_MID = 0.50
 
 # AI-Hub 원본 자체가 적어 학습이 불충분한 클래스 (evaluate 결과 기준).
 # electric_fry_pan: test 10장 중 2장만 정답(원본 41건뿐).
